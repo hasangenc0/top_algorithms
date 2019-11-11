@@ -10,7 +10,26 @@ type Node struct {
 }
 
 func (tree *Node) IsEmpty() bool {
-	return tree.data == 0
+	return tree == nil || (tree.data == 0 && tree.parent == nil && tree.left == nil && tree.right == nil)
+}
+
+func (tree *Node) isNull() bool {
+	return tree == nil || tree.IsEmpty()
+}
+
+func (tree *Node) IsLeaf() bool {
+	return tree.parent != nil && tree.left == nil && tree.right == nil
+}
+
+func (tree *Node) MinValue() int {
+	min := tree.data
+
+	for !tree.left.isNull() {
+		min = tree.left.data
+		tree = tree.left
+	}
+
+	return min
 }
 
 func (tree *Node) Insert(data int) {
@@ -18,13 +37,13 @@ func (tree *Node) Insert(data int) {
 		tree.data = data
 	} else {
 		if tree.data > data {
-			if tree.left == nil {
+			if tree.left.isNull() {
 				tree.left = &Node{data, nil, nil, tree}
 			} else {
 				tree.left.Insert(data)
 			}
 		} else if tree.data < data {
-			if tree.right == nil {
+			if tree.right.isNull() {
 				tree.right = &Node{data, nil, nil, tree}
 			} else {
 				tree.right.Insert(data)
@@ -35,8 +54,32 @@ func (tree *Node) Insert(data int) {
 	}
 }
 
-func (tree Node) Delete(data int) {
+func (tree *Node) Delete(data int) {
+	*tree = deleteNode(data, tree)
+}
 
+func deleteNode(data int, tree *Node) Node {
+	if tree.IsEmpty() {
+		return *tree
+	}
+
+	if tree.data > data {
+		tree.left.Delete(data)
+	} else if tree.data < data {
+		tree.right.Delete(data)
+	} else {
+		if tree.IsLeaf() {
+			return Node{}
+		} else if tree.left.isNull() {
+			return *tree.right
+		} else if tree.right.isNull() {
+			return *tree.left
+		} else {
+			tree.data = tree.right.MinValue()
+			tree.right.Delete(tree.data)
+		}
+	}
+	return *tree
 }
 
 func (tree Node) Search(data int) *Node {
@@ -46,9 +89,9 @@ func (tree Node) Search(data int) *Node {
 
 	if tree.data == data {
 		return &tree
-	} else if tree.data > data && tree.left != nil {
+	} else if tree.data > data && !tree.left.isNull() {
 		return tree.left.Search(data)
-	} else if tree.data < data && tree.right != nil {
+	} else if tree.data < data && !tree.right.isNull() {
 		return tree.right.Search(data)
 	}
 
@@ -62,11 +105,11 @@ func (tree Node) Print() {
 
 	fmt.Println(tree.data)
 
-	if tree.left != nil {
+	if !tree.left.isNull(){
 		tree.left.Print()
 	}
 
-	if tree.right != nil {
+	if !tree.right.isNull() {
 		tree.right.Print()
 	}
 }
@@ -75,17 +118,14 @@ func (tree Node) Print() {
 func main() {
 	tree := &Node{}
 
-	fmt.Println(tree.IsEmpty())
 
 	tree.Insert(5)
 	tree.Insert(2)
 	tree.Insert(6)
 	tree.Insert(3)
 
-	if src := tree.Search(2); src != nil {
-		fmt.Println("Search Result: ", src.data)
-	}
 
+	tree.Delete(5)
 	tree.Print()
 
 }
