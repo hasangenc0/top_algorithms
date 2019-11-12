@@ -1,14 +1,14 @@
 package main
 
 import (
+	bst "github.com/hasangenc0/top_algorithms/pkg/binary-search-tree"
 	"github.com/hasangenc0/top_algorithms/pkg/sort"
 )
 
-func BenchSort() {
-	sort.Benchmark()
-}
-
 func main() {
 	// Sort Algorithms Bench
-	BenchSort()
+	sort.Benchmark()
+
+	// Bst Algorithms Bench
+	bst.Benchmark()
 }
