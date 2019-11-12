@@ -1,4 +1,4 @@
-package main
+package binary_search_tree
 
 import "fmt"
 
@@ -10,7 +10,7 @@ type Node struct {
 }
 
 func (tree *Node) IsEmpty() bool {
-	return tree == nil || (tree.data == 0 && tree.parent == nil && tree.left == nil && tree.right == nil)
+	return tree.data == 0 && tree.parent == nil && tree.left == nil && tree.right == nil
 }
 
 func (tree *Node) isNull() bool {
@@ -21,15 +21,12 @@ func (tree *Node) IsLeaf() bool {
 	return tree.parent != nil && tree.left == nil && tree.right == nil
 }
 
-func (tree *Node) MinValue() int {
-	min := tree.data
-
-	for !tree.left.isNull() {
-		min = tree.left.data
-		tree = tree.left
+func (tree *Node) Successor() int {
+	if tree.left == nil {
+		return tree.data
 	}
 
-	return min
+	return tree.left.Successor()
 }
 
 func (tree *Node) Insert(data int) {
@@ -55,10 +52,18 @@ func (tree *Node) Insert(data int) {
 }
 
 func (tree *Node) Delete(data int) {
+	if tree == nil {
+		return
+	}
+
 	*tree = deleteNode(data, tree)
 }
 
 func deleteNode(data int, tree *Node) Node {
+	if tree == nil {
+		return Node{}
+	}
+
 	if tree.IsEmpty() {
 		return *tree
 	}
@@ -75,10 +80,11 @@ func deleteNode(data int, tree *Node) Node {
 		} else if tree.right.isNull() {
 			return *tree.left
 		} else {
-			tree.data = tree.right.MinValue()
+			tree.data = tree.right.Successor()
 			tree.right.Delete(tree.data)
 		}
 	}
+
 	return *tree
 }
 
@@ -112,20 +118,4 @@ func (tree Node) Print() {
 	if !tree.right.isNull() {
 		tree.right.Print()
 	}
-}
-
-
-func main() {
-	tree := &Node{}
-
-
-	tree.Insert(5)
-	tree.Insert(2)
-	tree.Insert(6)
-	tree.Insert(3)
-
-
-	tree.Delete(5)
-	tree.Print()
-
 }
